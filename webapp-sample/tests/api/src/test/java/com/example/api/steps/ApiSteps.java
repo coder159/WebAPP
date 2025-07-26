@@ -44,7 +44,7 @@ public class ApiSteps {
 
     @When("I POST to {string}")
     public void i_post_to(String path) {
-        response = spec()
+
                 .body(bodyJson == null ? "{}" : bodyJson)
                 .post(baseUrl + path);
     }
@@ -94,7 +94,7 @@ public class ApiSteps {
 
     @When("I POST to {string} with body {string}")
     public void i_post_with_body(String path, String json) {
-        response = spec()
+
                 .body(json)
                 .post(baseUrl + path);
     }
@@ -102,7 +102,7 @@ public class ApiSteps {
     @When("I PUT {string} with body {string}")
     public void i_put_with_body(String path, String json) {
         path = path.replace("{id}", lastId == null ? "0" : lastId);
-        response = spec()
+
                 .body(json)
                 .put(baseUrl + path);
     }
@@ -110,6 +110,6 @@ public class ApiSteps {
     @When("I DELETE {string}")
     public void i_delete(String path) {
         path = path.replace("{id}", lastId == null ? "0" : lastId);
-        response = spec().delete(baseUrl + path);
+
     }
 }
