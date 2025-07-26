@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.*;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -30,8 +30,11 @@ public class ApiSteps {
 
     @When("I POST to {string}")
     public void i_post_to(String path) {
-        response = given()
-                .contentType(ContentType.JSON)
+        RequestSpecification spec = given().contentType(ContentType.JSON);
+        if (token != null && !token.isEmpty()) {
+            spec.header("Authorization", "Bearer " + token);
+        }
+        response = spec
                 .body(bodyJson == null ? "{}" : bodyJson)
                 .post(baseUrl + path);
     }
@@ -82,9 +85,11 @@ public class ApiSteps {
 
     @When("I POST to {string} with body {string}")
     public void i_post_with_body(String path, String json) {
-        response = given()
-                .header("Authorization", "Bearer " + token)
-                .contentType(ContentType.JSON)
+        RequestSpecification spec = given().contentType(ContentType.JSON);
+        if (token != null && !token.isEmpty()) {
+            spec.header("Authorization", "Bearer " + token);
+        }
+        response = spec
                 .body(json)
                 .post(baseUrl + path);
     }
@@ -92,9 +97,11 @@ public class ApiSteps {
     @When("I PUT {string} with body {string}")
     public void i_put_with_body(String path, String json) {
         path = path.replace("{id}", lastId == null ? "0" : lastId);
-        response = given()
-                .header("Authorization", "Bearer " + token)
-                .contentType(ContentType.JSON)
+        RequestSpecification spec = given().contentType(ContentType.JSON);
+        if (token != null && !token.isEmpty()) {
+            spec.header("Authorization", "Bearer " + token);
+        }
+        response = spec
                 .body(json)
                 .put(baseUrl + path);
     }
@@ -102,8 +109,10 @@ public class ApiSteps {
     @When("I DELETE {string}")
     public void i_delete(String path) {
         path = path.replace("{id}", lastId == null ? "0" : lastId);
-        response = given()
-                .header("Authorization", "Bearer " + token)
-                .delete(baseUrl + path);
+        RequestSpecification spec = given();
+        if (token != null && !token.isEmpty()) {
+            spec.header("Authorization", "Bearer " + token);
+        }
+        response = spec.delete(baseUrl + path);
     }
 }
