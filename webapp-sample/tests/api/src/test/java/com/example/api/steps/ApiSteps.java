@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.*;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -19,6 +19,20 @@ public class ApiSteps {
     private Response response;
     private String lastId;
     private String bodyJson;
+    // Base URL is read from -DbaseUrl (defaults to http://localhost:4000) in your runner
+
+    // Build a request spec and include auth header if we have a token
+    private RequestSpecification spec() {
+        RequestSpecification s = given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON);
+        if (token != null && !token.isEmpty()) {
+            // If your server uses a custom header, replace the next line with:
+            // s.header("x-auth-token", token);
+            s.header("Authorization", "Bearer " + token);
+        }
+        return s;
+    }
 
     @Given("I have a payload from {string}")
     public void i_have_a_payload_from(String resourcePath) throws Exception {
@@ -30,8 +44,7 @@ public class ApiSteps {
 
     @When("I POST to {string}")
     public void i_post_to(String path) {
-        response = given()
-                .contentType(ContentType.JSON)
+        response = spec()
                 .body(bodyJson == null ? "{}" : bodyJson)
                 .post(baseUrl + path);
     }
@@ -75,16 +88,13 @@ public class ApiSteps {
 
     @When("I GET {string}")
     public void i_get(String path) {
-        response = given()
-                .header("Authorization", "Bearer " + token)
+        response = spec()
                 .get(baseUrl + path);
     }
 
     @When("I POST to {string} with body {string}")
     public void i_post_with_body(String path, String json) {
-        response = given()
-                .header("Authorization", "Bearer " + token)
-                .contentType(ContentType.JSON)
+        response = spec()
                 .body(json)
                 .post(baseUrl + path);
     }
@@ -92,9 +102,7 @@ public class ApiSteps {
     @When("I PUT {string} with body {string}")
     public void i_put_with_body(String path, String json) {
         path = path.replace("{id}", lastId == null ? "0" : lastId);
-        response = given()
-                .header("Authorization", "Bearer " + token)
-                .contentType(ContentType.JSON)
+        response = spec()
                 .body(json)
                 .put(baseUrl + path);
     }
@@ -102,8 +110,6 @@ public class ApiSteps {
     @When("I DELETE {string}")
     public void i_delete(String path) {
         path = path.replace("{id}", lastId == null ? "0" : lastId);
-        response = given()
-                .header("Authorization", "Bearer " + token)
-                .delete(baseUrl + path);
+        response = spec().delete(baseUrl + path);
     }
 }
